@@ -24,7 +24,6 @@ The Isolation Forest model achieved:
 | **F1-Score** | 0.122 |
 | **Inference Time** | <50ms |
 
-"Given the extreme class imbalance (0.17% fraud), I optimized the model for recall to catch as many fraud cases as possible, accepting the lower precision. The 95.3% ROC-AUC demonstrates strong discriminative ability, while the fast inference time (<50ms) makes the system practical for real-time deployment. The F1-score is low, but for fraud detection, maximizing recall has higher priority than a good F1-score. Also since  F1 = 2 × (precision × recall) / (precision + recall), the low precision (6.61%) mathematically constrains the F1-score.
 ## Problems I Faced
 
 ### 1. Choosing the Right Algorithm
@@ -99,4 +98,4 @@ uvicorn src.main:app --reload
 
 ## License
 
-This project is for educational purposes.
+MIT License - See [LICENSE](LICENSE) file for details.
