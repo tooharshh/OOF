@@ -35,6 +35,10 @@ Setting the threshold too low = false alarms, too high = missed fraud. I created
 ### 3. Feature Scaling
 Time and Amount had different scales than V1-V28 features. Applied StandardScaler to normalize them, which significantly improved model accuracy.
 
+## Architecture
+
+![Architecture Diagram](architecture.svg)
+
 ## Tech Stack
 
 - **Python 3.13**
