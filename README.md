@@ -31,32 +31,72 @@ The Isolation Forest model achieved:
 Because the dataset had a lot of class imbalance, I chose Isolation Forest because it works very good in isolating outliers. 
 
 ### 2. Threshold Optimization
-Setting the threshold too low meant too many false alarms, too high meant missing real fraud. I created a script to test different thresholds and visualize the trade-off between recall and precision. Eventually found a sweet spot where we catch 81% of frauds while keeping the system practical.
+Setting the threshold too low = false alarms, too high = missed fraud. I created a script to test different thresholds and visualize the trade-off between recall and precision. Eventually found a sweet spot where 81% of frauds are caught while keeping the system practically feasible.
 
 ### 3. Feature Scaling
-The 'Time' and 'Amount' features had very different scales compared to the V1-V28 features. Initially, the model was giving too much weight to these unscaled features. I solved this by applying StandardScaler to normalize them before training, which improved model performance significantly.
+Time and Amount had different scales than V1-V28 features. Applied StandardScaler to normalize them, which significantly improved model accuracy.
 
-## Built With
+## Tech Stack
 
 - **Python 3.13**
-- **FastAPI** - 
+- **FastAPI** 
 - **scikit-learn** 
 - **PostgreSQL** 
 - **Redis** 
-- **Docker** 
+- **Docker**
 - **SQLAlchemy** 
 - **Alembic** 
-- **pytest**
 
 
+### Run with Docker
 
-## Architecture
+Run the entire application stack with one command:
 
-![Fraud Detection Architecture](architecture.svg)
+```bash
+# Start all services (API, PostgreSQL, Redis)
+docker-compose -f config/docker-compose.yml up -d
 
-### Prerequisites
+# Check status
+docker ps
 
-- Python 3.13.9
-- Docker and Docker Compose
-- PostgreSQL 13 (if running without Docker)
-- Redis 6 (if running without Docker)
+# View logs
+docker logs fraud_detection_api
+
+# Stop all services
+docker-compose -f config/docker-compose.yml down
+```
+
+API will be available at `http://localhost:8000`
+
+### Local Development Setup
+
+For development with faster iteration:
+
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+
+pip install -r requirements.txt
+
+# 3. Start Redis (Docker)
+docker run -d --name redis-fraud -p 6379:6379 redis:7
+
+# 4. Set up PostgreSQL (use local installation or Docker)
+
+# 5. Run database migrations
+alembic upgrade head
+
+# 6. Start API
+python start_api.py
+# OR
+uvicorn src.main:app --reload
+```
+
+**Deployment Approach:**
+- Developed locally with hybrid setup (local Python + Docker Redis).
+- Containerized entire stack for production deployment
+- Docker Compose orchestrates all services with health checks
+
+## License
+
+This project is for educational purposes.

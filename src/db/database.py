@@ -15,7 +15,7 @@ engine = create_engine(
 
 # Async engine for API
 async_engine = create_async_engine(
-    settings.DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://"),
+    settings.DATABASE_URL.replace("postgresql://", "postgresql+psycopg://"),
     pool_pre_ping=True,
     pool_size=10,
     max_overflow=20,
