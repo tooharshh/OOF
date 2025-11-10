@@ -4,9 +4,7 @@ A production-ready fraud detection system using Machine Learning (Isolation Fore
 
 ## About
 
---> I built this project to understand how machine learning can be applied to real-world fraud detection problems. The challenge was interesting because fraud cases are extremely rare, which led me to explore anomaly detection techniques, specifically Isolation Forest, which worked really well for this use case. 
-
---> The API is built with FastAPI, stores predictions in PostgreSQL, and implements rate limiting with Redis.
+This project detects fraudulent credit card transactions using an Isolation Forest machine learning model deployed as a REST API. Built to handle highly imbalanced data (only 0.172% fraud cases), the system achieves 95.3% ROC-AUC and 81.63% recall. The FastAPI backend provides real-time predictions with PostgreSQL for persistence and Redis for caching and rate limiting.
 
 ## About the Dataset
 
@@ -24,8 +22,6 @@ The Isolation Forest model achieved:
 | **F1-Score** | 0.122 |
 | **Training Time** | ~8 seconds |
 | **Inference Time** | <50ms |
-
-I spent a lot of time optimizing the decision threshold. The default threshold didn't work well for such an imbalanced dataset, so I tested different thresholds and settled on one that balanced catching most frauds while keeping false positives manageable for a real-world scenario.
 
 ## Problems I Faced
 
