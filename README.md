@@ -1,11 +1,13 @@
 # OOF
 
-A production-ready fraud detection system using Machine Learning (Isolation Forest) deployed as a scalable REST API with PostgreSQL, Redis caching, and comprehensive monitoring.
+A production-ready fraud detection system using Machine Learning (Isolation Forest) deployed as a scalable REST API with PostgreSQL and Redis caching.
 
 ## About
 
 --> I built this project to understand how machine learning can be applied to real-world fraud detection problems. The challenge was interesting because fraud cases are extremely rare, which led me to explore anomaly detection techniques, specifically Isolation Forest, which worked really well for this use case. 
---> The API is built with FastAPI, stores predictions in PostgreSQL, implements rate limiting with Redis, and provides monitoring through Prometheus and Grafana.
+
+--> The API is built with FastAPI, stores predictions in PostgreSQL, and implements rate limiting with Redis.
+
 ## About the Dataset
 
 The dataset I used is the [Credit Card Fraud Detection Dataset](https://www.kaggle.com/datasets/kartik2112/fraud-detection). What makes this dataset challenging and realistic is that it's highly imbalanced - only 492 transactions out of 284,807 are fraudulent, which is just 0.172% of the total.
@@ -14,20 +16,14 @@ The dataset I used is the [Credit Card Fraud Detection Dataset](https://www.kagg
 
 The Isolation Forest model achieved:
 
-| Metric | Score | Description |
-|--------|-------|-------------|
-| **ROC-AUC** | 95.3% | Excellent ability to distinguish fraud from legitimate transactions |
-| **Recall** | 81.63% | Successfully catches 82% of all fraudulent transactions |
-| **Precision** | 6.61% | Trade-off made to maximize fraud detection |
-| **F1-Score** | 0.122 | Balanced measure of precision and recall |
-| **Training Time** | ~8 seconds | Fast training on entire dataset |
-| **Inference Time** | <50ms | Real-time prediction capability |
-
-The model was trained with these parameters:
-- **n_estimators**: 100 (number of trees in the forest)
-- **max_samples**: 256 (samples used to build each tree)
-- **contamination**: 0.002 (expected proportion of outliers)
-- **random_state**: 42 (for reproducibility)
+| Metric | Score |
+|--------|-------|
+| **ROC-AUC** | 95.3% |
+| **Recall** | 81.63% |
+| **Precision** | 6.61% |
+| **F1-Score** | 0.122 |
+| **Training Time** | ~8 seconds |
+| **Inference Time** | <50ms |
 
 I spent a lot of time optimizing the decision threshold. The default threshold didn't work well for such an imbalanced dataset, so I tested different thresholds and settled on one that balanced catching most frauds while keeping false positives manageable for a real-world scenario.
 
@@ -60,41 +56,25 @@ Setting up Alembic migrations was frustrating at first. I had to learn how to pr
 Right now the API runs locally with Docker, but I'm planning to deploy it to the cloud. Here are some ideas I'm considering:
 
 ### Deployment Plans
-- **AWS Elastic Beanstalk** or **Google Cloud Run** for easy managed deployment
-- Set up CI/CD pipeline with GitHub Actions for automated testing and deployment
-- Use AWS RDS or Cloud SQL for managed PostgreSQL instead of self-hosted
-- Implement proper secrets management with AWS Secrets Manager or similar
+Planning to use AWS Elastic Beanstalk or Google Cloud Run for managed deployment. Will set up GitHub Actions for CI/CD, migrate to managed databases like RDS or Cloud SQL, and implement proper secrets management.
 
 ### Model Improvements
-- Retrain the model with more recent data to catch evolving fraud patterns
-- Experiment with ensemble methods combining Isolation Forest with other algorithms
-- Add more features if available (merchant info, location data, customer history)
-- Implement automated model retraining based on feedback data
-
-### System Enhancements
-- Add a proper admin dashboard for monitoring predictions and system health
-- Build a feedback loop where confirmed fraud cases help retrain the model
-- Implement A/B testing to compare different model versions in production
-- Add email/SMS alerts for high-risk transactions
+I want to experiment with ensemble methods like XGBoost and LightGBM, and also try deep learning approaches using Autoencoders for anomaly detection. 
 
 ### Scalability
-- Move to Kubernetes for better container orchestration
-- Implement horizontal scaling for handling more requests
-- Add a message queue (RabbitMQ/Kafka) for batch processing
-- Consider using a feature store for managing ML features
+Moving to Kubernetes for better orchestration and implementing horizontal scaling. Adding a message queue like RabbitMQ or Kafka for batch processing would help handle larger volumes. A feature store could streamline ML feature management.
 
 ## Built With
 
-- **Python 3.13** - Programming language
-- **FastAPI** - Web framework for building the API
-- **scikit-learn** - Machine learning library (Isolation Forest)
-- **PostgreSQL** - Database for storing predictions
-- **Redis** - Caching and rate limiting
-- **Docker** - Containerization
-- **Prometheus & Grafana** - Monitoring and visualization
-- **SQLAlchemy** - Database ORM
-- **Alembic** - Database migrations
-- **pytest** - Testing framework
+- **Python 3.13**
+- **FastAPI** - 
+- **scikit-learn** 
+- **PostgreSQL** 
+- **Redis** 
+- **Docker** 
+- **SQLAlchemy** 
+- **Alembic** 
+- **pytest**
 
 
 
@@ -116,21 +96,9 @@ FastAPI Application
      +-- ML Model (Isolation Forest)
      |
      +-- PostgreSQL (Predictions Storage)
-     |
-     +-- Prometheus (Metrics)
 ```
 
-When a prediction request comes in, it first goes through rate limiting checks using Redis. If approved, the transaction data is normalized using the pre-trained scaler, then passed to the Isolation Forest model. The prediction is stored in PostgreSQL for tracking and analysis, and metrics are sent to Prometheus for monitoring.
-
-### Technology Stack
-
-- **Backend**: FastAPI 0.115.0, Python 3.13.9
-- **Database**: PostgreSQL 13 with async SQLAlchemy
-- **Cache**: Redis 6 (rate limiting, health check caching)
-- **ML**: scikit-learn 1.5.2 (Isolation Forest)
-- **Monitoring**: Prometheus, Grafana
-- **Deployment**: Docker, Docker Compose
-- **Testing**: pytest, pytest-asyncio
+When a prediction request comes in, it first goes through rate limiting checks using Redis. If approved, the transaction data is normalized using the pre-trained scaler, then passed to the Isolation Forest model. The prediction is stored in PostgreSQL for tracking and analysis.
 
 ## Getting Started
 
@@ -197,8 +165,6 @@ docker compose up -d
 Access the services:
 - API Documentation: http://localhost:8000/docs
 - Web UI: http://localhost:8000
-- Prometheus: http://localhost:9090
-- Grafana: http://localhost:3000 (admin/admin)
 - pgAdmin: http://localhost:5050
 
 The Swagger UI at `/docs` is really helpful for testing the API without writing any code. You can try out all the endpoints directly from your browser.
@@ -343,103 +309,6 @@ CREATE TABLE feedback (
 
 The feedback table is crucial for improving the model over time. Every time someone confirms whether a prediction was correct or not, that information is stored and can be used for retraining.
 
-## Machine Learning Model
-
-### Why Isolation Forest?
-
-I chose Isolation Forest for several reasons:
-
-1. **Handles Imbalanced Data**: With only 0.17% fraud cases, traditional classifiers don't work well
-2. **Unsupervised Learning**: Doesn't require perfectly labeled fraud examples to learn patterns
-3. **Fast Inference**: O(log n) complexity means predictions are really fast
-4. **Robust to Outliers**: Specifically designed to identify anomalies
-5. **Good Performance**: Achieved 95.3% ROC-AUC score
-
-The algorithm works by randomly selecting features and split values to isolate observations. Anomalies (fraudulent transactions) are easier to isolate and require fewer splits, resulting in shorter path lengths in the isolation trees.
-
-### Dataset
-
-Source: [Kaggle Credit Card Fraud Detection](https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud)
-
-- 284,807 transactions
-- 492 fraudulent (0.172% fraud rate)
-- 30 features (V1-V28 PCA transformed, Time, Amount)
-
-### Model Training
-
-The model training process is documented in `model.ipynb`:
-
-1. Exploratory Data Analysis
-2. Feature Engineering (StandardScaler for Time and Amount)
-3. Isolation Forest training
-4. Threshold optimization for balanced recall/precision
-5. Model evaluation on test set
-
-The notebook includes visualizations showing transaction patterns, time-based analysis, and model performance metrics. I spent a lot of time on the threshold optimization step because it has a huge impact on the model's practical usefulness.
-
-### Model Selection: Why Isolation Forest?
-
-Isolation Forest was chosen because:
-
-1. **Imbalanced Data**: Only 0.17% of transactions are fraudulent
-2. **Unsupervised Learning**: Doesn't require labeled fraud examples
-3. **Fast Inference**: O(log n) complexity, suitable for real-time detection
-4. **Robust to Outliers**: Designed to identify anomalies
-5. **High Performance**: 95.3% ROC-AUC score
-
-### Feature Engineering
-
-The features are processed before being fed to the model:
-- V1-V28: PCA-transformed features (used as-is, already normalized)
-- Time: Scaled using StandardScaler to match the range of other features
-- Amount: Scaled using StandardScaler to prevent bias toward large transactions
-
-Initially I wasn't scaling Time and Amount, and the model was giving them too much importance just because they had larger values. StandardScaler fixed this issue.
-
-## Development
-
-### Project Structure
-
-```
-fault_detection/
-├── app/
-│   ├── api/
-│   │   ├── schemas.py              # Pydantic request/response models
-│   │   └── prediction_schemas.py   # Prediction-related schemas
-│   ├── core/
-│   │   ├── config.py               # Application configuration
-│   │   ├── model_loader.py         # ML model singleton
-│   │   ├── cache.py                # Redis cache implementation
-│   │   ├── rate_limiter.py         # Rate limiting logic
-│   │   ├── logging_setup.py        # Structured logging
-│   │   ├── metrics.py              # Prometheus metrics
-│   │   └── middleware.py           # Request monitoring
-│   ├── db/
-│   │   ├── database.py             # Database connection
-│   │   ├── models.py               # SQLAlchemy models
-│   │   └── crud.py                 # Database operations
-│   ├── static/                     # Web UI assets
-│   ├── templates/                  # Web UI HTML
-│   └── main.py                     # FastAPI application
-├── models/
-│   ├── isolation_forest_model.pkl  # Trained ML model
-│   ├── scaler.pkl                  # Feature scaler
-│   └── model_metadata.json         # Model metrics
-├── alembic/
-│   └── versions/                   # Database migrations
-├── tests/
-│   ├── test_api.py                 # API endpoint tests
-│   ├── test_models.py              # ML model tests
-│   ├── test_database.py            # Database tests
-│   ├── test_cache.py               # Cache tests
-│   └── test_integration.py         # Integration tests
-├── docker-compose.yml              # Multi-service orchestration
-├── Dockerfile                      # API container definition
-├── requirements.txt                # Python dependencies
-├── alembic.ini                     # Alembic configuration
-├── start_api.py                    # API startup script
-└── model.ipynb                     # Model training notebook
-```
 
 ### Running Tests
 
@@ -454,6 +323,9 @@ pytest tests/test_api.py -v
 
 # Run with coverage
 pytest tests/ --cov=app --cov-report=html
+
+# Run tests in Docker
+docker compose exec api pytest tests/ -v
 ```
 
 I've included tests for the API endpoints, database operations, caching, and model predictions. The coverage isn't 100% yet, but it covers all the critical paths.
@@ -491,7 +363,7 @@ docker build -t fraud-detection-api .
 docker compose up -d
 ```
 
-Docker Compose sets up the entire stack (API, PostgreSQL, Redis, Prometheus, Grafana) with a single command, which makes local development and testing much easier.
+Docker Compose sets up the entire stack (API, PostgreSQL, Redis) with a single command, which makes local development and testing much easier.
 
 ### Environment Variables
 
@@ -521,91 +393,6 @@ CACHE_EXPIRATION=3600
 MODEL_PATH=models/isolation_forest_model.pkl
 SCALER_PATH=models/scaler.pkl
 METADATA_PATH=models/model_metadata.json
-
-# Monitoring
-ENABLE_METRICS=True
 ```
 
 Make sure to change the API_KEY and SECRET_KEY in production. The default values are only for development.
-
-### Cloud Deployment Options
-
-#### AWS
-- Elastic Beanstalk (managed)
-- ECS Fargate (containerized)
-- EC2 (full control)
-
-#### Google Cloud Platform
-- Cloud Run (serverless)
-- GKE (Kubernetes)
-- Compute Engine (VMs)
-
-#### Azure
-- App Service
-- Container Instances
-- AKS (Kubernetes)
-
-I'm leaning toward using Google Cloud Run or AWS Elastic Beanstalk for the first deployment because they handle a lot of the infrastructure management automatically.
-
-### Production Checklist
-
-- [ ] Generate secure API keys
-- [ ] Set DEBUG=False
-- [ ] Configure SSL/TLS certificates
-- [ ] Set up database backups
-- [ ] Configure log aggregation
-- [ ] Set up monitoring alerts
-- [ ] Implement CI/CD pipeline
-- [ ] Perform load testing
-- [ ] Document disaster recovery plan
-- [ ] Enable database connection pooling
-
-This checklist helps ensure nothing important is missed when moving to production. I learned the hard way that skipping any of these can cause issues later.
-
-## Monitoring
-
-### Prometheus Metrics
-
-The API exposes Prometheus metrics at `/metrics`:
-
-- `fraud_predictions_total`: Total predictions made
-- `fraud_detection_latency`: Prediction response time
-- `api_requests_total`: Total API requests
-- `fraud_by_risk_level`: Predictions by risk level
-
-These metrics help track how the system is performing in production and can trigger alerts if something goes wrong.
-
-### Grafana Dashboards
-
-Pre-configured dashboards for:
-- API request rates
-- Prediction latency (p50, p95, p99)
-- Fraud detection rate
-- Cache hit rate
-- Database query performance
-
-Access Grafana at http://localhost:3000 (default credentials: admin/admin)
-
-The dashboards give a nice visual overview of what's happening with the API. You can see request spikes, slow queries, and fraud detection patterns over time.
-
-### Logging
-
-Structured JSON logging to stdout:
-
-```json
-{
-  "event": "prediction",
-  "transaction_id": "TXN-001",
-  "prediction": false,
-  "fraud_probability": 0.15,
-  "risk_level": "LOW",
-  "timestamp": "2025-11-10T10:30:00Z",
-  "level": "info"
-}
-```
-
-JSON logs are easier to parse and search through, especially when using log aggregation tools like ELK stack or CloudWatch.
-
-## Acknowledgments
-
-I used the [Kaggle Credit Card Fraud Detection](https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud) dataset for training the model. Big thanks to the dataset creators for making this available for research and learning purposes.
