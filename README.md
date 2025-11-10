@@ -22,6 +22,7 @@ The Isolation Forest model achieved:
 | **Recall** | 81.63% |
 | **Precision** | 6.61% |
 | **F1-Score** | 0.122 |
+| **Training Time** | ~8 seconds |
 | **Inference Time** | <50ms |
 
 ## Problems I Faced
