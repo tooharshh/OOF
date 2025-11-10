@@ -22,9 +22,9 @@ The Isolation Forest model achieved:
 | **Recall** | 81.63% |
 | **Precision** | 6.61% |
 | **F1-Score** | 0.122 |
-| **Training Time** | ~8 seconds |
 | **Inference Time** | <50ms |
 
+"Given the extreme class imbalance (0.17% fraud), I optimized the model for recall to catch as many fraud cases as possible, accepting the lower precision. The 95.3% ROC-AUC demonstrates strong discriminative ability, while the fast inference time (<50ms) makes the system practical for real-time deployment. The F1-score is low, but for fraud detection, maximizing recall has higher priority than a good F1-score. Also since  F1 = 2 × (precision × recall) / (precision + recall), the low precision (6.61%) mathematically constrains the F1-score.
 ## Problems I Faced
 
 ### 1. Choosing the Right Algorithm
@@ -78,15 +78,15 @@ python -m venv .venv
 
 pip install -r requirements.txt
 
-# 3. Start Redis (Docker)
+# Start Redis (Docker)
 docker run -d --name redis-fraud -p 6379:6379 redis:7
 
-# 4. Set up PostgreSQL (use local installation or Docker)
+# Set up PostgreSQL (use local installation or Docker)
 
-# 5. Run database migrations
+# Run database migrations
 alembic upgrade head
 
-# 6. Start API
+# Start API
 python start_api.py
 # OR
 uvicorn src.main:app --reload
