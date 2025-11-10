@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fraud Detection System</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Credit Card Fraud Detection</h1>
+            <p class="subtitle">Real-time fraud prediction using Isolation Forest ML model</p>
+        </header>
+
+        <div class="main-content">
+            <div class="input-section">
+                <h2>Transaction Input</h2>
+                <form id="predictionForm">
+                    <div class="form-group">
+                        <label for="transactionId">Transaction ID</label>
+                        <input type="text" id="transactionId" placeholder="e.g., TXN-12345" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="amount">Amount ($)</label>
+                            <input type="number" id="amount" step="0.01" placeholder="150.00" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="time">Time (seconds)</label>
+                            <input type="number" id="time" placeholder="406" required>
+                        </div>
+                    </div>
+
+                    <div class="pca-features">
+                        <h3>PCA Features (V1-V28)</h3>
+                        <p class="hint">Enter normalized PCA-transformed features or use random sample</p>
+                        <div id="pcaGrid" class="pca-grid"></div>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="button" class="btn btn-secondary" onclick="loadSampleData()">Load Sample</button>
+                        <button type="submit" class="btn btn-primary">Predict Fraud</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="result-section">
+                <h2>Prediction Result</h2>
+                <div id="resultContainer" class="result-container">
+                    <p class="placeholder">Submit a transaction to see prediction results</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="history-section">
+            <h2>Recent Predictions</h2>
+            <div id="historyContainer" class="history-container">
+                <p class="placeholder">No predictions yet</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
